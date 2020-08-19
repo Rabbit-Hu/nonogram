@@ -1,0 +1,294 @@
+<?php
+    global $count;
+    $count=1;
+    $str = file_get_contents("visitCounter.txt");
+    $visitNumber = (int)$str;
+    if(!isset($_COOKIE["nonogram_visitcount"])){
+        setcookie("nonogram_visitcount", 1, $expire = time() + 365*24*60*60); 
+        $visitNumber += 1;
+        file_put_contents("visitCounter.txt", print_r($visitNumber, true));
+    }
+    else{
+        $count=$_COOKIE['nonogram_visitcount'] + 1;
+        setcookie("nonogram_visitcount", $count, $expire = time() + 365*24*60*60); 
+    }
+?>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+    <meta charset="utf-8"/>
+    <style type="text/css">
+        h1 {
+            font-size: 24px;
+            line-height: 31px;
+            font-weight: 400;
+            color: #333333;
+        }
+        p {
+            font-size: 16px;
+            line-height: 28px;
+            color: #707070;
+        }
+        .context {
+            width: 94%;
+            margin-left: 3%;
+        }
+        #titleBox {
+            float: top;
+            width: 96%;
+            margin-left: 2%;
+        }
+        canvas{
+            width: 100%;
+        }
+    </style>
+    <title>校庆挑战 | 你能拼出几幅清华故事？</title>
+</head>
+
+<body style="overflow: hidden; background: #e8e5dc">
+
+    <div id="loading" style="width:100%; height:100%; position: fixed; text-align: center; z-index: 11; background: #e8e5dc;" onscroll="">
+        <img style="margin-top: 30%; width: 100%" src="images/loading.gif">
+    </div>
+
+    <img id="heartImg" src="images/heart.png" style="display:none;"/>
+    <img id="emptyHeartImg" src="images/emptyHeart.png" style="display:none;"/>
+
+    <div style="width: 100%; height: 1px; "></div>
+
+    <!-- <div onclick="cheatForTest()" style="margin-top: 10px; background: lightGray; border-radius: 10px; height: 100px; text-align: center;">
+        <br/> 本网页为测试版本。<br/>为了方便测试，单击此处三次可以完成所有关卡。
+    </div> -->
+
+    <div id="titleBox">
+
+        <h1>校庆挑战 | 你能拼出几幅清华故事？</h1>
+
+        <p style="font-size: 15px; color: rgba(0, 0, 0, 0.3); font-weight: 400; line-height: 20px;"><a style="color: #576b95; " onclick="showOrHideSubscribe()">thu小五爷 清华小五爷园</a> 4月26日</p>
+
+        <img src="images/subscribe.png" id="subscribe" style="width: 80%; margin-left: 10%; display: none;"/>
+
+    </div>
+
+    <div style="width: 100%; height: 30px; "></div>
+        
+    <img src="images/beginning.png" style="width: 90%; margin-left: 5%;"/>
+
+    <div style="width: 100%; height: 30px; "></div>
+    
+    <div id="tutorialTextDiv" onclick="startTutorial()" style="border-radius: 25px; background: #bbd877; height: 120px; ">
+        <div style="height:10%; width: 100%" onclick="startTutorial()"></div>
+        <div style="text-align: center; width: 100%; height: 80%;">
+            <p id="tutorialText", style="color: black;" onclick="startTutorial()"><span style="font-size:25px;">点击这里开始<br/>游戏教程！</span></p>
+        </div>
+    </div>
+    
+    <div style="width:100%; text-align: center; margin-top: 20px">
+        <canvas id="canvas0" width="900" height="1200"></canvas>
+    </div>
+
+    <div class="context" id="description0" style="display: none;">
+        <p>自行车上的小黄鸭，陪你一起在清晨爬上新民路的坡道，一起在正午穿梭于学堂路的车流。离开清华这么久，不知道我的小黄鸭会不会孤单？</p>
+        <p>恭喜你完成了新手教程！接下来的关卡会更有挑战哦！</p>
+    </div>
+
+    <img style="width: 100%; margin-top: 60px;" src="images/hr.png"/>
+    <div style="margin-top: -30px; text-align: center;">
+        <p style="font: bold 30px Hei;">第 <span style="color: #6abb66">1</span> 关</p>
+    </div>
+    
+    <!-- <p>THU109</p> -->
+    <div style="width:100%; text-align: center;">
+        <canvas id="canvas1" width="900" height="1200"></canvas>
+    </div>
+
+    <div class="context" id="description1" style="width: 100%; margin-left: 0; display: none; text-align: center; margin-bottom: -30px">
+        <img style="width: 100%;" src="images/THU109.png"/>
+        <p style="font-size: 10px;">↑喜欢的话，长按图片保存、分享到朋友圈吧！↑</p>
+    </div>
+
+
+    <img style="width: 100%; margin-top: 60px;" src="images/hr.png"/>
+    <div style="margin-top: -30px; text-align: center;">
+        <p style="font: bold 30px Hei;">第 <span style="color: #6abb66">2</span> 关</p>
+    </div>
+    <!-- <p>学生卡</p> -->
+    <div style="width:100%; text-align: center;">
+        <canvas id="canvas2" width="900" height="1200"></canvas>
+    </div>
+    <div class="context" id="description2" style="width: 100%; margin-left: 0; display: none; text-align: center; margin-bottom: -30px">
+        <img style="width: 100%;" src="images/xueshengka.png"/>
+        <p style="font-size: 10px;">↑喜欢的话，长按图片保存、分享到朋友圈吧！↑</p>
+    </div>
+
+    <img style="width: 100%; margin-top: 60px;" src="images/hr.png"/>
+    <div style="margin-top: -30px; text-align: center;">
+        <p style="font: bold 30px Hei;">第 <span style="color: #6abb66">3</span> 关</p>
+    </div>
+
+    <!-- <p>二校门</p> -->
+    <div style="width:100%; text-align: center;">
+        <canvas id="canvas3" width="900" height="1200"></canvas>
+    </div>
+
+    <div class="context" id="description3" style="width: 100%; margin-left: 0; display: none; text-align: center; margin-bottom: -30px">
+        <img style="width: 100%;" src="images/erxiaomen.png"/>
+        <p style="font-size: 10px;">↑喜欢的话，长按图片保存、分享到朋友圈吧！↑</p>
+    </div>
+
+
+    <img style="width: 100%; margin-top: 60px;" src="images/hr.png"/>
+    <div style="margin-top: -30px; text-align: center;">
+        <p style="font: bold 30px Hei;">第 <span style="color: #6abb66">4</span> 关</p>
+    </div>
+    <!-- <p>大礼堂</p> -->
+    <div style="width:100%; text-align: center;">
+        <canvas id="canvas4" width="900" height="1200"></canvas>
+    </div>
+
+    <div class="context" id="description4" style="width: 100%; margin-left: 0; display: none; text-align: center; margin-bottom: -30px">
+        <img style="width: 100%;" src="images/dalitang.png"/>
+        <p style="font-size: 10px;">↑喜欢的话，长按图片保存、分享到朋友圈吧！↑</p>
+    </div>
+
+
+    <img style="width: 100%; margin-top: 60px;" src="images/hr.png"/>
+    <div style="margin-top: -30px; text-align: center;">
+        <p style="font: bold 30px Hei;">第 <span style="color: #6abb66">5</span> 关</p>
+    </div>
+
+    <!-- <p>日晷</p> -->
+    <div style="width:100%; text-align: center;">
+        <canvas id="canvas5" width="900" height="1200"></canvas>
+    </div>
+
+    <div class="context" id="description5" style="width: 100%; margin-left: 0; display: none; text-align: center; margin-bottom: -30px">
+        <img style="width: 100%;" src="images/rigui.png"/>
+        <p style="font-size: 10px;">↑喜欢的话，长按图片保存、分享到朋友圈吧！↑</p>
+    </div>
+    
+    <img style="width: 100%; margin-top: 60px;" src="images/hr.png"/>
+    <div style="margin-top: -30px; text-align: center;">
+        <p style="font: bold 30px Hei;">第 <span style="color: #6abb66">6</span> 关</p>
+    </div>
+
+    <!-- <p>学堂</p> -->
+    <div style="width:100%; text-align: center;">
+        <canvas id="canvas6" width="900" height="1200"></canvas>
+    </div>
+
+    <div class="context" id="description6" style="width: 100%; margin-left: 0; display: none; text-align: center; margin-bottom: -30px">
+        <img style="width: 100%;" src="images/xuetang.png"/>
+        <p style="font-size: 10px;">↑喜欢的话，长按图片保存、分享到朋友圈吧！↑</p>
+    </div>
+
+    <img style="width: 100%; margin-top: 60px;" src="images/hr.png"/>
+    <div style="margin-top: -30px; text-align: center;">
+        <p style="font: bold 30px Hei;">第 <span style="color: #6abb66">7</span> 关</p>
+    </div>
+
+    <!-- <p>情人坡</p> -->
+    <div style="width:100%; text-align: center;">
+        <canvas id="canvas7" width="900" height="1200"></canvas>
+    </div>
+    <div class="context" id="description7" style="width: 100%; margin-left: 0; display: none; text-align: center; margin-bottom: -30px">
+        <img style="width: 100%;" src="images/qingrenpo.png"/>
+        <p style="font-size: 10px;">↑在图中看到自己了嘛？↑</p>
+    </div>
+
+    <img style="width: 100%; margin-top: 60px;" src="images/hr.png"/>
+    <div style="margin-top: -30px; text-align: center;">
+        <p style="font: bold 30px Hei;">第 <span style="color: #6abb66">8</span> 关</p>
+    </div>
+
+    <!-- <p>艺博</p> -->
+    <div style="width:100%; text-align: center;">
+        <canvas id="canvas8" width="900" height="1200"></canvas>
+    </div>
+    <div class="context" id="description8" style="width: 100%; margin-left: 0; display: none; text-align: center; margin-bottom: -30px">
+        <img style="width: 100%;" src="images/yibo.png"/>
+        <p style="font-size: 10px;">↑喜欢的话，长按图片保存、分享到朋友圈吧！↑</p>
+    </div>
+
+    <img style="width: 100%; margin-top: 60px;" src="images/hr.png"/>
+    <div style="margin-top: -30px; text-align: center;">
+        <p style="font: bold 30px Hei;">第 <span style="color: #6abb66">9</span> 关</p>
+    </div>
+
+    <!-- <p>清华长庚</p> -->
+    <div style="width:100%; text-align: center;">
+        <canvas id="canvas9" width="900" height="1200"></canvas>
+    </div>
+
+    <div class="context" id="description9" style="width: 100%; margin-left: 0; display: none; text-align: center; margin-bottom: -30px">
+        <img style="width: 100%;" src="images/changgeng.png"/>
+        <p style="font-size: 10px;">↑喜欢的话，长按图片保存、分享到朋友圈吧！↑</p>
+    </div>
+    
+    <img style="width: 100%; margin-top: 60px;" src="images/hr.png"/>
+    <div style="margin-top: -30px; text-align: center;">
+        <p style="font: bold 30px Hei;">第 <span style="color: #6abb66">10</span> 关</p>
+    </div>
+
+    <!-- <p>志愿者</p> -->
+    <div style="width:100%; text-align: center;">
+        <canvas id="canvas10" width="900" height="1200"></canvas>
+    </div>
+    <div class="context" id="description10" style="width: 100%; margin-left: 0; display: none; text-align: center; margin-bottom: 30px">
+        <img style="width: 100%;" src="images/zhiyuanzhe.png"/>
+        <p style="font-size: 10px;">↑喜欢的话，长按图片保存、分享到朋友圈吧！↑</p>
+    </div>
+
+    <div id="allClear" style="text-align: center; margin-bottom:60px; display: none;">
+        <img style="width: 100%; margin-top: 30px; color: rgb(157,94,75);" src="images/hr.png"/>
+        <p>🎉恭喜你完成了<b>所有关卡</b>！🎉</p>
+        <p>你莫非就是……传说中的逻辑大师？</p>
+        <img style="width: 100%; margin-bottom: 20px;" src="images/share.png"/>
+        <hr/>
+    </div>
+
+    <img src="images/ending.png" style="width: 90%; margin-left: 5%;"/>
+
+    <div style="text-align: center; margin-top: 30px; margin-bottom: 30px;">
+        <p>想吐槽？快到<a style="color: #576b95;" href="https://mp.weixin.qq.com/s/tjP9IvS4g5k6oPJT4S7LYg">推送评论区</a>一吐为快吧！</p>
+        <hr/>
+    </div>
+
+
+    <?php
+        print("<p style='font-size: 15px; color: rgba(0, 0, 0, 0.3); font-weight: 400; line-height: 20px;'>阅读量 ".$visitNumber."</p>");
+    ?>
+    
+    <div style="text-align: right;">
+    <p style="font-size: 14px; color: rgba(0, 0, 0, 0.3)">
+        代码 | 袁小迪<br/>
+        绘图 | 于汉杰 袁小迪 <br/>何诗贤 刘明霈 伊丽<br/>
+        文案 | 李蓉<br/>
+        小五爷园视觉创意组 出品
+    </p>
+    </div>
+
+    <div style="width: 100%; height: 50px;"></div>
+
+    <div id="helpDiv", style="width: 90%; height: 70%; margin: 0 auto; background: rgba(252, 252, 252, 0.849); position: fixed; top: 15%; left: 5%; text-align: center; display: none; z-index: 10;">
+
+        <h1 style="color:dimgray;">游戏规则</h1>
+        <hr/>
+        <div style="margin-left: 20px; margin-right: 20px; text-align: left;">
+            <p>1. 点击格子，给格子涂成黑色；</p>
+            <p>2. 每行、每列旁边有数字，每个数<b style="color:forestgreen">依次</b>对应这一行（列）中的一段黑色格子。
+            <p>3. 不同的两段黑色格子不能连接在一起，必须被至少一个白色格子隔开。</p>
+            <p>4. 数的大小代表对应段的<b style="color:forestgreen">长度</b>。</p>
+            <p>5. 点击“X”按钮切换模式，标记不可能涂成黑色的格子。</p>
+        </div>
+
+        <div id="iKnow" style="width:200px; height: 80px; background: #bbd877; border-radius: 25px; margin: 0 auto; text-align: center;  display: flex; justify-content:center; align-items:Center;" onclick="hideHelp();">
+            <p style="font-size: 30px; ">知道了!</p>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="index.js"></script>
+</body>
+
+
+
